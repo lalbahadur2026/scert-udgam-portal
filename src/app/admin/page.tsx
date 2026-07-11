@@ -175,7 +175,7 @@ export default function AdminDashboard() {
           </div>
 
           <div style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)', textAlign: 'center', fontSize: '0.8rem', color: '#93c5fd', lineHeight: '1.4' }}>
-            "नवाचार ही परिवर्तन है,<br/>परिवर्तन ही प्रगति है।"
+            &quot;नवाचार ही परिवर्तन है,<br/>परिवर्तन ही प्रगति है।&quot;
           </div>
         </div>
 

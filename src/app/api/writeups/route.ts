@@ -31,6 +31,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    if (title.length > 200 || content.length > 5000) {
+      return NextResponse.json({ error: 'Input too long' }, { status: 400 });
+    }
+
+    if (title.includes('<script>') || content.includes('<script>')) {
+      return NextResponse.json({ error: 'Invalid characters detected' }, { status: 400 });
+    }
+
     let fileUrl = null;
     if (file && file.size > 0) {
       const bytes = await file.arrayBuffer();

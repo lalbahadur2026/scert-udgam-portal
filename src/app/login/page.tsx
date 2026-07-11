@@ -12,22 +12,31 @@ export default function Login() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
 
-    // Mock Authentication Logic
-    setTimeout(() => {
-      if (email.toLowerCase() === 'admin' || email.includes('admin')) {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (res.ok) {
         // Successful login
         router.push('/admin');
+        router.refresh();
       } else {
-        // Failed login
-        setError('अमान्य ईमेल या पासवर्ड। कृपया पुनः प्रयास करें। (Invalid Credentials)');
+        const data = await res.json();
+        setError(data.error || 'अमान्य ईमेल या पासवर्ड।');
         setLoading(false);
       }
-    }, 1000);
+    } catch (err) {
+      setError('सर्वर से जुड़ने में समस्या आई।');
+      setLoading(false);
+    }
   };
 
   return (
