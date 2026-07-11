@@ -1,0 +1,58 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id        String    @id @default(cuid())
+  name      String
+  email     String    @unique
+  password  String
+  role      String    @default("TEACHER") // TEACHER, REVIEWER, ADMIN
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  
+  writeups  Writeup[]
+  comments  Comment[]
+}
+
+model Writeup {
+  id          String    @id @default(cuid())
+  title       String
+  category    String
+  content     String
+  status      String    @default("PENDING") // PENDING, CORRECTION, APPROVED
+  fileUrl     String?
+  
+  district    String?
+  block       String?
+  school      String?
+  mobile      String?
+
+  teacherId   String
+  teacher     User      @relation(fields: [teacherId], references: [id])
+  comments    Comment[]
+
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Comment {
+  id         String   @id @default(cuid())
+  content    String
+  
+  writeupId  String
+  writeup    Writeup  @relation(fields: [writeupId], references: [id])
+  
+  reviewerId String
+  reviewer   User     @relation(fields: [reviewerId], references: [id])
+
+  createdAt  DateTime @default(now())
+}
