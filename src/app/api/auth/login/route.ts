@@ -15,7 +15,8 @@ export async function POST(request: Request) {
       const session = await encrypt({ user: { role: 'admin' }, expires });
 
       // Set cookie
-      cookies().set('session', session, {
+      const cookieStore = await cookies();
+      cookieStore.set('session', session, {
         expires,
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
