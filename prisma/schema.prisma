@@ -35,6 +35,7 @@ model Writeup {
   block       String?
   school      String?
   mobile      String?
+  authorName  String?
 
   teacherId   String
   teacher     User      @relation(fields: [teacherId], references: [id])

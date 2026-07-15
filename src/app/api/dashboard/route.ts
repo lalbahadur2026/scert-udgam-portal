@@ -47,7 +47,7 @@ export async function GET() {
 
       return {
         id: w.id,
-        name: w.teacher.name,
+        name: w.authorName || w.teacher.name,
         school: w.school || 'N/A',
         district: w.district || 'N/A',
         title: w.title,

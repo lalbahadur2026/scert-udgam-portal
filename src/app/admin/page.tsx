@@ -409,7 +409,7 @@ export default function AdminDashboard() {
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                       <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                         <tr style={{ textAlign: 'left', color: '#64748b' }}>
-                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>आईडी</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>क्रम संख्या</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>शिक्षक का नाम</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>विद्यालय</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>जिला</th>
@@ -432,7 +432,7 @@ export default function AdminDashboard() {
                           })
                           .map((w: any, idx: number) => (
                           <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                              <td style={{ padding: '0.75rem 0.5rem', color: '#94a3b8', fontSize: '0.7rem' }}>{w.id.substring(0, 5)}</td>
+                              <td style={{ padding: '0.75rem 0.5rem', color: '#94a3b8', fontSize: '0.7rem' }}>{idx + 1}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#334155' }}>{w.name}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#475569' }}>{w.school}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#475569' }}>{w.district}</td>
