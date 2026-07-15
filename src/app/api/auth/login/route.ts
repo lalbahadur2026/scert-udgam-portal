@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const { email, password } = await request.json();
 
     const adminEmail = process.env.ADMIN_EMAIL || 'admin';
-    const adminPassword = process.env.ADMIN_PASSWORD || 'Scert@1234';
+    const adminPassword = process.env.ADMIN_PASSWORD || '2026';
 
     if (email === adminEmail && password === adminPassword) {
       // Create session
