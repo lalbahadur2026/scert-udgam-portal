@@ -28,18 +28,24 @@ export async function POST(req: Request) {
       });
     }
 
-    const writeupsToCreate = data.map((row: any) => {
-      // Map exact Hindi/English column names from Google Form Excel to our DB fields
-      const title = row['नवाचार का शीर्षक'] || row['इनोवेशन का शीर्षक (Innovation Title)'] || row['title'] || row['Title'] || row['नवाचार का शीर्षक (Innovation Title)'] || row['इन्नोवेशन का शीर्षक'] || 'Untitled Innovation';
-      const category = row['नवाचार की श्रेणी'] || row['category'] || row['Category'] || row['नवाचार की श्रेणी (Category of Innovation)'] || 'सामान्य नवाचार';
-      const district = row['जिला'] || row['जनपद'] || row['जनपद (District)'] || row['district'] || row['District'] || 'Unknown';
-      const block = row['विकासखंड'] || row['block'] || row['Block'] || row['विकासखंड (Block)'] || '';
-      const school = row['विद्यालय'] || row['विद्यालय का नाम'] || row['विद्यालय का नाम (School Name)'] || row['school'] || row['School'] || '';
-      const content = row['विस्तृत राइट-अप'] || row['विस्तृत राइट-अप (Detailed Write-up)'] || row['content'] || row['Content'] || row['Write-up'] || 'No content provided';
-      const mobileRaw = row['मोबाइल नंबर'] || row['मोबाइल नंबर (Mobile Number)'] || row['mobile'] || row['Mobile'] || row['Mobile Number'] || '';
+    const writeupsToCreate = data.map((rawRow: any) => {
+      // Normalize all keys to handle invisible spaces or variations
+      const row: any = {};
+      for (const key of Object.keys(rawRow)) {
+        const cleanKey = key.trim().replace(/\s+/g, '').toLowerCase();
+        row[cleanKey] = rawRow[key];
+      }
+
+      const title = row['नवाचारकाशीर्षक'] || row['इनोवेशनकाशीर्षक(innovationtitle)'] || row['title'] || row['नवाचारकाशीर्षक(innovationtitle)'] || row['इन्नोवेशनकाशीर्षक'] || 'Untitled Innovation';
+      const category = row['नवाचारकीश्रेणी'] || row['category'] || row['नवाचारकीश्रेणी(categoryofinnovation)'] || 'सामान्य नवाचार';
+      const district = row['जिला'] || row['जनपद'] || row['जनपद(district)'] || row['district'] || 'Unknown';
+      const block = row['विकासखंड'] || row['block'] || row['विकासखंड(block)'] || '';
+      const school = row['विद्यालय'] || row['विद्यालयकानाम'] || row['विद्यालयकानाम(schoolname)'] || row['school'] || '';
+      const content = row['विस्तृतराइट-अप'] || row['विस्तृतराइटअप'] || row['विस्तृतराइट-अप(detailedwrite-up)'] || row['content'] || row['write-up'] || 'No content provided';
+      const mobileRaw = row['मोबाइलनंबर'] || row['मोबाइलनंबर(mobilenumber)'] || row['mobile'] || row['mobilenumber'] || '';
       const mobile = mobileRaw ? String(mobileRaw) : '';
-      const teacherName = row['शिक्षक का नाम'] || row['पूरा नाम'] || row['पूरा नाम (Full Name)'] || row['Teacher Name'] || row['Name'] || '';
-      const fileUrl = row['डॉक्यूमेंट अपलोड करें'] || row['डॉक्यूमेंट अपलोड करें (.docx, .pdf)'] || null;
+      const teacherName = row['शिक्षककानाम'] || row['पूरानाम'] || row['पूरानाम(fullname)'] || row['teachername'] || row['name'] || '';
+      const fileUrl = row['डॉक्यूमेंटअपलोडकरें'] || row['डॉक्यूमेंटअपलोडकरें(.docx,.pdf)'] || null;
 
       return {
         title,
