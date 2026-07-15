@@ -15,7 +15,6 @@ export async function GET() {
       by: ['district'],
       _count: { id: true },
       orderBy: { _count: { id: 'desc' } },
-      take: 6, // Top 6 districts for the chart
     });
 
     const districtStats = districtStatsRaw
@@ -25,9 +24,8 @@ export async function GET() {
         value: d._count.id
       }));
 
-    // Get 5 recent writeups for the table
+    // Get all writeups for the Excel-like table
     const recentWriteups = await prisma.writeup.findMany({
-      take: 5,
       orderBy: { createdAt: 'desc' },
       include: { teacher: true }
     });

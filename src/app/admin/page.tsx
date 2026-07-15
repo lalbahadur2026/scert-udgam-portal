@@ -366,17 +366,19 @@ export default function AdminDashboard() {
                           <option>सभी जिले</option>
                         </select>
                       </div>
-                      <div style={{ height: '180px' }}>
+                      <div style={{ height: '180px', overflowX: 'auto', overflowY: 'hidden' }}>
                         {data?.districtStats && data.districtStats.length > 0 ? (
-                          <ResponsiveContainer width="100%" height="100%">
-                            <BarChart data={data.districtStats} margin={{ top: 10, right: 0, left: -25, bottom: 0 }}>
-                              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                              <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} />
-                              <YAxis fontSize={11} tickLine={false} axisLine={false} />
-                              <Tooltip cursor={{ fill: '#f1f5f9' }} />
-                              <Bar dataKey="value" fill="#3b82f6" radius={[2, 2, 0, 0]} barSize={20} />
-                            </BarChart>
-                          </ResponsiveContainer>
+                          <div style={{ minWidth: `${Math.max(100, data.districtStats.length * 40)}px`, height: '100%' }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={data.districtStats} margin={{ top: 10, right: 0, left: -25, bottom: 0 }}>
+                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                                <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} interval={0} angle={-45} textAnchor="end" height={60} />
+                                <YAxis fontSize={11} tickLine={false} axisLine={false} />
+                                <Tooltip cursor={{ fill: '#f1f5f9' }} />
+                                <Bar dataKey="value" fill="#3b82f6" radius={[2, 2, 0, 0]} barSize={20} />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
                         ) : (
                           <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: '#94a3b8', fontSize: '0.9rem' }}>कोई डेटा उपलब्ध नहीं</div>
                         )}
@@ -403,18 +405,19 @@ export default function AdminDashboard() {
                   <h3 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e293b', fontSize: '1rem' }}>
                     <FileText size={16} /> {activeTab === 'डैशबोर्ड' ? 'हाल ही में प्राप्त लेखन' : 'लेखन सूची'}
                   </h3>
-                  <div style={{ overflowX: 'auto' }}>
+                  <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '500px', border: '1px solid #e2e8f0', borderRadius: '4px' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
-                      <thead>
-                        <tr style={{ borderBottom: '2px solid #e2e8f0', textAlign: 'left', color: '#64748b' }}>
-                          <th style={{ padding: '0.5rem 0', fontWeight: '500' }}>आईडी</th>
-                          <th style={{ fontWeight: '500' }}>शिक्षक का नाम</th>
-                          <th style={{ fontWeight: '500' }}>विद्यालय</th>
-                          <th style={{ fontWeight: '500' }}>जिला</th>
-                          <th style={{ fontWeight: '500' }}>नवाचार का शीर्षक</th>
-                          <th style={{ fontWeight: '500' }}>श्रेणी</th>
-                          <th style={{ fontWeight: '500' }}>स्थिति</th>
-                          <th style={{ fontWeight: '500' }}>कार्यवाही</th>
+                      <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
+                        <tr style={{ textAlign: 'left', color: '#64748b' }}>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>आईडी</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>शिक्षक का नाम</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>विद्यालय</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>जिला</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>नवाचार का शीर्षक</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>श्रेणी</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>दस्तावेज़</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>स्थिति</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0' }}>कार्यवाही</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -429,20 +432,29 @@ export default function AdminDashboard() {
                           })
                           .map((w: any, idx: number) => (
                           <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                              <td style={{ padding: '0.75rem 0', color: '#94a3b8', fontSize: '0.7rem' }}>{w.id.substring(0, 5)}</td>
-                              <td style={{ color: '#334155' }}>{w.name}</td>
-                              <td style={{ color: '#475569' }}>{w.school}</td>
-                              <td style={{ color: '#475569' }}>{w.district}</td>
-                              <td style={{ color: '#3b82f6' }}>{w.title}</td>
-                              <td>
+                              <td style={{ padding: '0.75rem 0.5rem', color: '#94a3b8', fontSize: '0.7rem' }}>{w.id.substring(0, 5)}</td>
+                              <td style={{ padding: '0.75rem 0.5rem', color: '#334155' }}>{w.name}</td>
+                              <td style={{ padding: '0.75rem 0.5rem', color: '#475569' }}>{w.school}</td>
+                              <td style={{ padding: '0.75rem 0.5rem', color: '#475569' }}>{w.district}</td>
+                              <td style={{ padding: '0.75rem 0.5rem', color: '#3b82f6', maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{w.title}</td>
+                              <td style={{ padding: '0.75rem 0.5rem' }}>
                                 <span style={{ backgroundColor: w.catBg, color: w.catColor, fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{w.category}</span>
                               </td>
-                              <td>
-                                <span style={{ backgroundColor: w.statusColor, color: w.textColor, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem' }}>
+                              <td style={{ padding: '0.75rem 0.5rem' }}>
+                                {w.fileUrl ? (
+                                  <a href={w.fileUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: '500' }}>
+                                    <FileBox size={14} /> लिंक
+                                  </a>
+                                ) : (
+                                  <span style={{ color: '#94a3b8' }}>-</span>
+                                )}
+                              </td>
+                              <td style={{ padding: '0.75rem 0.5rem' }}>
+                                <span style={{ backgroundColor: w.statusColor, color: w.textColor, padding: '0.2rem 0.5rem', borderRadius: '4px', fontSize: '0.75rem', whiteSpace: 'nowrap' }}>
                                   {w.status}
                                 </span>
                               </td>
-                              <td>
+                              <td style={{ padding: '0.75rem 0.5rem' }}>
                                 <button 
                                   onClick={() => setSelectedWriteup(w)}
                                   style={{ background: 'none', border: 'none', color: '#3b82f6', cursor: 'pointer', padding: '0.25rem 0.5rem', borderRadius: '4px', backgroundColor: '#eff6ff' }}>
@@ -452,7 +464,7 @@ export default function AdminDashboard() {
                             </tr>
                         ))
                       ) : (
-                          <tr><td colSpan={8} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>कोई डेटा नहीं</td></tr>
+                          <tr><td colSpan={9} style={{ padding: '1rem', textAlign: 'center', color: '#94a3b8' }}>कोई डेटा नहीं</td></tr>
                         )}
                       </tbody>
                     </table>
