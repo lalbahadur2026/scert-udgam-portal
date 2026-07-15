@@ -30,7 +30,7 @@ export async function POST(req: Request) {
 
     const writeupsToCreate = data.map((row: any) => {
       // Map exact Hindi/English column names from Google Form Excel to our DB fields
-      const title = row['इनोवेशन का शीर्षक (Innovation Title)'] || row['title'] || row['Title'] || row['नवाचार का शीर्षक (Innovation Title)'] || row['इन्नोवेशन का शीर्षक'] || 'Untitled Innovation';
+      const title = row['नवाचार का शीर्षक'] || row['इनोवेशन का शीर्षक (Innovation Title)'] || row['title'] || row['Title'] || row['नवाचार का शीर्षक (Innovation Title)'] || row['इन्नोवेशन का शीर्षक'] || 'Untitled Innovation';
       const category = row['category'] || row['Category'] || row['नवाचार की श्रेणी (Category of Innovation)'] || 'सामान्य नवाचार';
       const district = row['जनपद (District)'] || row['district'] || row['District'] || row['जनपद'] || 'Unknown';
       const block = row['block'] || row['Block'] || row['विकासखंड (Block)'] || row['विकासखंड'] || '';
