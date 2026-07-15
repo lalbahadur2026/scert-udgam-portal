@@ -34,11 +34,11 @@ export async function POST(req: Request) {
       const category = row['category'] || row['Category'] || row['नवाचार की श्रेणी (Category of Innovation)'] || 'सामान्य नवाचार';
       const district = row['जनपद (District)'] || row['district'] || row['District'] || row['जनपद'] || 'Unknown';
       const block = row['block'] || row['Block'] || row['विकासखंड (Block)'] || row['विकासखंड'] || '';
-      const school = row['विद्यालय का नाम (School Name)'] || row['school'] || row['School'] || row['विद्यालय'] || '';
+      const school = row['विद्यालय का नाम'] || row['विद्यालय का नाम (School Name)'] || row['school'] || row['School'] || row['विद्यालय'] || '';
       const content = row['विस्तृत राइट-अप (Detailed Write-up)'] || row['content'] || row['Content'] || row['Write-up'] || 'No content provided';
       const mobileRaw = row['मोबाइल नंबर (Mobile Number)'] || row['mobile'] || row['Mobile'] || row['Mobile Number'] || '';
       const mobile = mobileRaw ? String(mobileRaw) : '';
-      const teacherName = row['पूरा नाम (Full Name)'] || 'Unknown Teacher';
+      const teacherName = row['शिक्षक का नाम'] || row['पूरा नाम'] || row['पूरा नाम (Full Name)'] || row['Teacher Name'] || row['Name'] || '';
       const fileUrl = row['डॉक्यूमेंट अपलोड करें (.docx, .pdf)'] || null;
 
       return {
