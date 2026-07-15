@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import Papa from 'papaparse';
+import * as XLSX from 'xlsx';
 
 export default function AdminDashboard() {
   const [data, setData] = useState<any>(null);
@@ -42,38 +43,63 @@ export default function AdminDashboard() {
     if (!file) return;
 
     setUploadingCSV(true);
-    Papa.parse(file, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        try {
-          const res = await fetch('/api/writeups/bulk', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ data: results.data })
-          });
-          
-          if (res.ok) {
-            const json = await res.json();
-            alert(`सफलतापूर्वक ${json.count} रिकॉर्ड अपलोड किए गए! (Successfully uploaded)`);
-            fetchDashboardData();
-          } else {
-            const err = await res.json();
-            alert("अपलोड में समस्या आई: " + err.error);
-          }
-        } catch (error) {
-          alert("सर्वर से जुड़ने में समस्या आई।");
-        } finally {
-          setUploadingCSV(false);
-          // Reset file input
-          e.target.value = '';
+
+    const processData = async (parsedData: any[]) => {
+      try {
+        const res = await fetch('/api/writeups/bulk', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ data: parsedData })
+        });
+        
+        if (res.ok) {
+          const json = await res.json();
+          alert(`सफलतापूर्वक ${json.count} रिकॉर्ड अपलोड किए गए! (Successfully uploaded)`);
+          fetchDashboardData();
+        } else {
+          const err = await res.json();
+          alert("अपलोड में समस्या आई: " + (err.error || 'Unknown error'));
         }
-      },
-      error: (error) => {
-        alert("फाइल पढ़ने में समस्या आई: " + error.message);
+      } catch (error) {
+        console.error('Upload Error:', error);
+        alert("सर्वर से जुड़ने में समस्या आई।");
+      } finally {
         setUploadingCSV(false);
+        e.target.value = ''; // Reset input
       }
-    });
+    };
+
+    if (file.name.endsWith('.xlsx') || file.name.endsWith('.xls')) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        try {
+          const bstr = evt.target?.result;
+          const wb = XLSX.read(bstr, { type: 'binary' });
+          const wsname = wb.SheetNames[0];
+          const ws = wb.Sheets[wsname];
+          const data = XLSX.utils.sheet_to_json(ws);
+          processData(data);
+        } catch (err) {
+          console.error(err);
+          alert('Invalid Excel file. (फाइल पढ़ने में समस्या आई)');
+          setUploadingCSV(false);
+        }
+      };
+      reader.readAsBinaryString(file);
+    } else {
+      Papa.parse(file, {
+        header: true,
+        skipEmptyLines: true,
+        complete: (results) => {
+          processData(results.data);
+        },
+        error: (error) => {
+          console.error(error);
+          alert("फाइल पढ़ने में समस्या आई: " + error.message);
+          setUploadingCSV(false);
+        }
+      });
+    }
   };
 
   useEffect(() => {
