@@ -73,19 +73,20 @@ export default function AdminDashboard() {
       const reader = new FileReader();
       reader.onload = (evt) => {
         try {
-          const bstr = evt.target?.result;
-          const wb = XLSX.read(bstr, { type: 'binary' });
+          const arrayBuffer = evt.target?.result as ArrayBuffer;
+          const data = new Uint8Array(arrayBuffer);
+          const wb = XLSX.read(data, { type: 'array' });
           const wsname = wb.SheetNames[0];
           const ws = wb.Sheets[wsname];
-          const data = XLSX.utils.sheet_to_json(ws);
-          processData(data);
+          const jsonData = XLSX.utils.sheet_to_json(ws);
+          processData(jsonData);
         } catch (err) {
           console.error(err);
           alert('Invalid Excel file. (फाइल पढ़ने में समस्या आई)');
           setUploadingCSV(false);
         }
       };
-      reader.readAsBinaryString(file);
+      reader.readAsArrayBuffer(file);
     } else {
       Papa.parse(file, {
         header: true,
