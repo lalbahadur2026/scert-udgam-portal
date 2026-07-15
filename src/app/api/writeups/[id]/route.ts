@@ -1,10 +1,13 @@
 import { NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export async function PUT(
+  req: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const { status, comment } = await req.json();
-    const { id } = params;
+    const { id } = await params;
 
     if (!id || !status) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });

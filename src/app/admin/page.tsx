@@ -84,9 +84,11 @@ export default function AdminDashboard() {
     { name: 'लंबित समीक्षा', value: data.stats.pending || 0, color: '#3b82f6' },
     { name: 'सुधार हेतु लौटाए गए', value: data.stats.returned || 0, color: '#ef4444' },
     { name: 'स्वीकृत', value: data.stats.approved || 0, color: '#22c55e' },
+    { name: 'इंटरव्यू चयनित', value: data.stats.interviewSelected || 0, color: '#4338ca' },
+    { name: 'इंटरव्यू अस्वीकृत', value: data.stats.interviewRejected || 0, color: '#6b7280' },
   ] : [];
 
-  const handleStatusUpdate = async (status: 'APPROVED' | 'CORRECTION') => {
+  const handleStatusUpdate = async (status: 'APPROVED' | 'CORRECTION' | 'INTERVIEW_SELECTED' | 'INTERVIEW_REJECTED') => {
     if (!selectedWriteup) return;
     
     if (status === 'CORRECTION' && !reviewerComment.trim()) {
@@ -171,18 +173,30 @@ export default function AdminDashboard() {
             </div>
 
             {/* Modal Footer */}
-            <div style={{ padding: '1.5rem', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '1rem', backgroundColor: '#f8fafc', borderRadius: '0 0 12px 12px' }}>
+            <div style={{ padding: '1.5rem', borderTop: '1px solid #e2e8f0', display: 'flex', justifyContent: 'flex-end', gap: '0.5rem', backgroundColor: '#f8fafc', borderRadius: '0 0 12px 12px', flexWrap: 'wrap' }}>
               <button 
                 onClick={() => handleStatusUpdate('CORRECTION')}
                 disabled={isUpdating}
-                style={{ padding: '0.75rem 1.5rem', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isUpdating ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <AlertTriangle size={18} /> सुधार हेतु लौटाएं
+                style={{ padding: '0.5rem 1rem', backgroundColor: '#ef4444', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isUpdating ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+                <AlertTriangle size={16} /> सुधार हेतु लौटाएं
               </button>
               <button 
                 onClick={() => handleStatusUpdate('APPROVED')}
                 disabled={isUpdating}
-                style={{ padding: '0.75rem 1.5rem', backgroundColor: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isUpdating ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <CheckCircle size={18} /> स्वीकृत करें
+                style={{ padding: '0.5rem 1rem', backgroundColor: '#22c55e', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isUpdating ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+                <CheckCircle size={16} /> स्वीकृत करें
+              </button>
+              <button 
+                onClick={() => handleStatusUpdate('INTERVIEW_SELECTED')}
+                disabled={isUpdating}
+                style={{ padding: '0.5rem 1rem', backgroundColor: '#4f46e5', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isUpdating ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+                <Star size={16} /> इंटरव्यू चयनित
+              </button>
+              <button 
+                onClick={() => handleStatusUpdate('INTERVIEW_REJECTED')}
+                disabled={isUpdating}
+                style={{ padding: '0.5rem 1rem', backgroundColor: '#4b5563', color: 'white', border: 'none', borderRadius: '6px', fontWeight: 'bold', cursor: isUpdating ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.9rem' }}>
+                <X size={16} /> इंटरव्यू अस्वीकृत
               </button>
             </div>
           </div>
@@ -205,6 +219,8 @@ export default function AdminDashboard() {
             <SidebarItem icon={<MessageSquare size={18} />} text="समीक्षक की टिप्पणियाँ" onClick={() => alert("यह फीचर जल्द ही उपलब्ध होगा")} />
             <SidebarItem icon={<AlertTriangle size={18} />} text="आवश्यक सुधार" active={activeTab === 'आवश्यक सुधार'} onClick={() => setActiveTab('आवश्यक सुधार')} />
             <SidebarItem icon={<CheckCircle size={18} />} text="स्वीकृत लेखन" active={activeTab === 'स्वीकृत लेखन'} onClick={() => setActiveTab('स्वीकृत लेखन')} />
+            <SidebarItem icon={<Star size={18} />} text="इंटरव्यू चयनित" active={activeTab === 'इंटरव्यू चयनित'} onClick={() => setActiveTab('इंटरव्यू चयनित')} />
+            <SidebarItem icon={<X size={18} />} text="इंटरव्यू अस्वीकृत" active={activeTab === 'इंटरव्यू अस्वीकृत'} onClick={() => setActiveTab('इंटरव्यू अस्वीकृत')} />
             <SidebarItem icon={<BarChart2 size={18} />} text="प्रगति रिपोर्ट" onClick={() => alert("यह फीचर जल्द ही उपलब्ध होगा")} />
             <SidebarItem icon={<Download size={18} />} text="रिपोर्ट एवं निर्यात" onClick={() => alert("यह फीचर जल्द ही उपलब्ध होगा")} />
             <SidebarItem icon={<Bell size={18} />} text="संदेश / सूचनाएँ" badge="5" onClick={() => alert("यह फीचर जल्द ही उपलब्ध होगा")} />
@@ -298,12 +314,14 @@ export default function AdminDashboard() {
             <>
               {activeTab === 'डैशबोर्ड' && (
                 <>
-                  {/* 4 STAT CARDS */}
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '1rem' }}>
+                  {/* 6 STAT CARDS */}
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '1rem' }}>
                     <StatCard icon={<FileBox size={24} color="white" />} title="कुल प्राप्त लेखन" value={data?.stats?.total || 0} bgColor="#f0f7ff" iconBg="#3b82f6" />
                     <StatCard icon={<Clock size={24} color="white" />} title="समीक्षा हेतु लंबित" value={data?.stats?.pending || 0} bgColor="#fffbeb" iconBg="#f59e0b" />
                     <StatCard icon={<AlertTriangle size={24} color="white" />} title="सुधार हेतु लौटाए गए" value={data?.stats?.returned || 0} bgColor="#fef2f2" iconBg="#ef4444" />
                     <StatCard icon={<CheckCircle size={24} color="white" />} title="स्वीकृत लेखन" value={data?.stats?.approved || 0} bgColor="#f0fdf4" iconBg="#22c55e" />
+                    <StatCard icon={<Star size={24} color="white" />} title="इंटरव्यू चयनित" value={data?.stats?.interviewSelected || 0} bgColor="#e0e7ff" iconBg="#4338ca" />
+                    <StatCard icon={<X size={24} color="white" />} title="इंटरव्यू अस्वीकृत" value={data?.stats?.interviewRejected || 0} bgColor="#f3f4f6" iconBg="#4b5563" />
                   </div>
 
                   {/* MIDDLE CHARTS ROW */}
@@ -403,8 +421,10 @@ export default function AdminDashboard() {
                       {data?.recentWriteups && data.recentWriteups.length > 0 ? (
                         data.recentWriteups
                           .filter((w: any) => {
-                            if (activeTab === 'स्वीकृत लेखन') return w.status === 'APPROVED';
-                            if (activeTab === 'आवश्यक सुधार') return w.status === 'CORRECTION';
+                            if (activeTab === 'स्वीकृत लेखन') return w.rawStatus === 'APPROVED';
+                            if (activeTab === 'आवश्यक सुधार') return w.rawStatus === 'CORRECTION';
+                            if (activeTab === 'इंटरव्यू चयनित') return w.rawStatus === 'INTERVIEW_SELECTED';
+                            if (activeTab === 'इंटरव्यू अस्वीकृत') return w.rawStatus === 'INTERVIEW_REJECTED';
                             return true;
                           })
                           .map((w: any, idx: number) => (

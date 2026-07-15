@@ -7,6 +7,8 @@ export async function GET() {
     const pending = await prisma.writeup.count({ where: { status: 'PENDING' } });
     const returned = await prisma.writeup.count({ where: { status: 'CORRECTION' } });
     const approved = await prisma.writeup.count({ where: { status: 'APPROVED' } });
+    const interviewSelected = await prisma.writeup.count({ where: { status: 'INTERVIEW_SELECTED' } });
+    const interviewRejected = await prisma.writeup.count({ where: { status: 'INTERVIEW_REJECTED' } });
 
     // Get district-wise stats for the bar chart
     const districtStatsRaw = await prisma.writeup.groupBy({
@@ -39,6 +41,10 @@ export async function GET() {
         statusColor = '#dcfce7'; textColor = '#16a34a'; statusText = 'स्वीकृत';
       } else if (w.status === 'CORRECTION') {
         statusColor = '#fee2e2'; textColor = '#dc2626'; statusText = 'सुधार हेतु लौटाया';
+      } else if (w.status === 'INTERVIEW_SELECTED') {
+        statusColor = '#e0e7ff'; textColor = '#4338ca'; statusText = 'इंटरव्यू चयनित';
+      } else if (w.status === 'INTERVIEW_REJECTED') {
+        statusColor = '#f3f4f6'; textColor = '#4b5563'; statusText = 'इंटरव्यू अस्वीकृत';
       }
 
       return {
@@ -53,13 +59,14 @@ export async function GET() {
         catBg: '#eff6ff',
         catColor: '#3b82f6',
         status: statusText,
+        rawStatus: w.status,
         statusColor,
         textColor
       };
     });
 
     return NextResponse.json({
-      stats: { total, pending, returned, approved },
+      stats: { total, pending, returned, approved, interviewSelected, interviewRejected },
       districtStats,
       recentWriteups: formattedRecent
     });
