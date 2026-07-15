@@ -13,6 +13,7 @@ import {
 import Link from 'next/link';
 import Papa from 'papaparse';
 import * as XLSX from 'xlsx';
+import UPMap from '@/components/UPMap';
 
 export default function AdminDashboard() {
   const [data, setData] = useState<any>(null);
@@ -393,21 +394,11 @@ export default function AdminDashboard() {
                           <option>सभी जिले</option>
                         </select>
                       </div>
-                      <div style={{ height: '180px', overflowX: 'auto', overflowY: 'hidden' }}>
+                      <div style={{ height: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         {data?.districtStats && data.districtStats.length > 0 ? (
-                          <div style={{ minWidth: `${Math.max(100, data.districtStats.length * 40)}px`, height: '100%' }}>
-                            <ResponsiveContainer width="100%" height="100%">
-                              <BarChart data={data.districtStats} margin={{ top: 10, right: 0, left: -25, bottom: 0 }}>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
-                                <XAxis dataKey="name" fontSize={11} tickLine={false} axisLine={false} interval={0} angle={-45} textAnchor="end" height={60} />
-                                <YAxis fontSize={11} tickLine={false} axisLine={false} />
-                                <Tooltip cursor={{ fill: '#f1f5f9' }} />
-                                <Bar dataKey="value" fill="#3b82f6" radius={[2, 2, 0, 0]} barSize={20} />
-                              </BarChart>
-                            </ResponsiveContainer>
-                          </div>
+                          <UPMap districtStats={data.districtStats} />
                         ) : (
-                          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', color: '#94a3b8', fontSize: '0.9rem' }}>कोई डेटा उपलब्ध नहीं</div>
+                          <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>कोई डेटा उपलब्ध नहीं</div>
                         )}
                       </div>
                     </div>

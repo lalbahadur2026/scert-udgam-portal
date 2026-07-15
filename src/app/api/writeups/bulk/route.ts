@@ -28,7 +28,11 @@ export async function POST(req: Request) {
       });
     }
 
-    const writeupsToCreate = data.map((rawRow: any) => {
+    const writeupsToCreate = data.map((rawRow: any, index: number) => {
+      if (index === 0) {
+        console.log("EXCEL HEADERS:", Object.keys(rawRow));
+      }
+      
       // Normalize all keys to handle invisible spaces or variations
       const row: any = {};
       for (const key of Object.keys(rawRow)) {
