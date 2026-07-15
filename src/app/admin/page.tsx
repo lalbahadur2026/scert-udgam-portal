@@ -11,6 +11,7 @@ import {
   FileBox, Clock, AlertCircle, Eye, ShieldCheck, Timer, EyeIcon, Star, X
 } from 'lucide-react';
 import Link from 'next/link';
+import Papa from 'papaparse';
 
 export default function AdminDashboard() {
   const [data, setData] = useState<any>(null);
@@ -21,6 +22,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState('डैशबोर्ड');
   const [reviewerComment, setReviewerComment] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [uploadingCSV, setUploadingCSV] = useState(false);
 
   const fetchDashboardData = () => {
     fetch('/api/dashboard')
@@ -33,6 +35,45 @@ export default function AdminDashboard() {
         console.error('Failed to fetch dashboard data', err);
         setLoading(false);
       });
+  };
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingCSV(true);
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: async (results) => {
+        try {
+          const res = await fetch('/api/writeups/bulk', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: results.data })
+          });
+          
+          if (res.ok) {
+            const json = await res.json();
+            alert(`सफलतापूर्वक ${json.count} रिकॉर्ड अपलोड किए गए! (Successfully uploaded)`);
+            fetchDashboardData();
+          } else {
+            const err = await res.json();
+            alert("अपलोड में समस्या आई: " + err.error);
+          }
+        } catch (error) {
+          alert("सर्वर से जुड़ने में समस्या आई।");
+        } finally {
+          setUploadingCSV(false);
+          // Reset file input
+          e.target.value = '';
+        }
+      },
+      error: (error) => {
+        alert("फाइल पढ़ने में समस्या आई: " + error.message);
+        setUploadingCSV(false);
+      }
+    });
   };
 
   useEffect(() => {
@@ -194,6 +235,39 @@ export default function AdminDashboard() {
                <img src="/scert.jpg" alt="SCERT Logo" style={{ height: '65px', borderRadius: '50%' }} onError={(e) => e.currentTarget.style.display = 'none'} />
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+              
+              {/* CSV Upload Button */}
+              <div style={{ marginRight: '1rem' }}>
+                <input 
+                  type="file" 
+                  accept=".csv" 
+                  id="csv-upload" 
+                  style={{ display: 'none' }} 
+                  onChange={handleFileUpload}
+                  disabled={uploadingCSV}
+                />
+                <label 
+                  htmlFor="csv-upload" 
+                  style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '0.5rem', 
+                    backgroundColor: '#10b981', 
+                    color: 'white', 
+                    padding: '0.5rem 1rem', 
+                    borderRadius: '6px', 
+                    cursor: uploadingCSV ? 'not-allowed' : 'pointer',
+                    fontWeight: 'bold',
+                    fontSize: '0.9rem',
+                    transition: 'all 0.2s',
+                    opacity: uploadingCSV ? 0.7 : 1
+                  }}
+                >
+                  <FileBox size={18} />
+                  {uploadingCSV ? 'अपलोड हो रहा है...' : 'Upload Google Form CSV'}
+                </label>
+              </div>
+
               <div style={{ textAlign: 'right' }}>
                 <p style={{ margin: 0, fontWeight: 'bold', color: '#1e293b', fontSize: '1.1rem' }}>SCERT LKO</p>
                 <p style={{ margin: 0, fontSize: '0.75rem', color: '#64748b' }}>एडमिन (Admin)</p>
