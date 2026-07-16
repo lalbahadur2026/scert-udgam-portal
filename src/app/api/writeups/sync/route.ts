@@ -44,15 +44,30 @@ export async function POST(req: Request) {
         row[cleanKey] = (rawRow as any)[key];
       }
 
-      const title = row['नवाचारकाशीर्षक'] || row['इनोवेशनकाशीर्षक(innovationtitle)'] || row['title'] || row['नवाचारकाशीर्षक(innovationtitle)'] || row['इन्नोवेशनकाशीर्षक'] || 'Untitled Innovation';
-      const category = row['नवाचारकीश्रेणी'] || row['category'] || row['नवाचारकीश्रेणी(categoryofinnovation)'] || 'सामान्य नवाचार';
-      const district = row['जिला'] || row['जनपद'] || row['जनपद(district)'] || row['district'] || 'Unknown';
-      const block = row['विकासखंड'] || row['block'] || row['विकासखंड(block)'] || '';
-      const school = row['विद्यालय'] || row['विद्यालयकानाम'] || row['विद्यालयकानाम(schoolname)'] || row['school'] || '';
-      const content = row['विस्तृतराइट-अप'] || row['विस्तृतराइटअप'] || row['विस्तृतराइट-अप(detailedwrite-up)'] || row['content'] || row['write-up'] || 'No content provided';
-      const mobileRaw = row['मोबाइलनंबर'] || row['मोबाइलनंबर(mobilenumber)'] || row['mobile'] || row['mobilenumber'] || '';
-      const mobile = mobileRaw ? String(mobileRaw) : '';
-      const teacherName = row['शिक्षककानाम'] || row['पूरानाम'] || row['पूरानाम(fullname)'] || row['teachername'] || row['name'] || '';
+      const titleKey = Object.keys(row).find(k => k.includes('शीर्षक') || k.includes('title') || k.includes('नवाचार') || k.includes('innovation') || k.includes('topic'));
+      const title = titleKey ? row[titleKey] : 'Untitled Innovation';
+      
+      const categoryKey = Object.keys(row).find(k => k.includes('श्रेणी') || k.includes('category'));
+      const category = categoryKey ? row[categoryKey] : 'सामान्य नवाचार';
+      
+      const districtKey = Object.keys(row).find(k => k.includes('जिला') || k.includes('जनपद') || k.includes('district'));
+      const district = districtKey ? row[districtKey] : 'Unknown';
+      
+      const blockKey = Object.keys(row).find(k => k.includes('विकासखंड') || k.includes('block'));
+      const block = blockKey ? row[blockKey] : '';
+      
+      const schoolKey = Object.keys(row).find(k => k.includes('विद्यालय') || k.includes('school'));
+      const school = schoolKey ? row[schoolKey] : '';
+      
+      const contentKey = Object.keys(row).find(k => k.includes('विस्तृत') || k.includes('राइट') || k.includes('write') || k.includes('content') || k.includes('विवरण'));
+      const content = contentKey ? row[contentKey] : 'No content provided';
+      
+      const mobileKey = Object.keys(row).find(k => k.includes('मोबाइल') || k.includes('mobile') || k.includes('number'));
+      const mobile = mobileKey && row[mobileKey] ? String(row[mobileKey]) : '';
+      
+      const nameKey = Object.keys(row).find(k => k.includes('नाम') || k.includes('name') || k.includes('शिक्षक'));
+      const teacherName = nameKey ? row[nameKey] : '';
+      
       const fileKey = Object.keys(row).find(k => k.includes('डॉक्यूमेंट') || k.includes('upload') || k.includes('file') || k.includes('link') || k.includes('pdf'));
       const fileUrl = fileKey ? row[fileKey] : null;
 
