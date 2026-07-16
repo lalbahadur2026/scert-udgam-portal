@@ -165,7 +165,7 @@ export default function AdminDashboard() {
                   <span>👤 {selectedWriteup.name}</span>
                   <span>📱 {selectedWriteup.mobile}</span>
                   <span>🏫 {selectedWriteup.school}</span>
-                  <span>📍 {selectedWriteup.district}</span>
+                  <span>📍 {selectedWriteup.block ? `${selectedWriteup.block}, ` : ''}{selectedWriteup.district}</span>
                 </div>
               </div>
               <button onClick={() => setSelectedWriteup(null)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}>
@@ -451,8 +451,10 @@ export default function AdminDashboard() {
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>शिक्षक का नाम</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>मोबाइल नंबर</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>विद्यालय</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>ब्लॉक</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>जिला</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>नवाचार का शीर्षक</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>विस्तृत विवरण</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>श्रेणी</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>दस्तावेज़</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>स्थिति</th>
@@ -494,8 +496,10 @@ export default function AdminDashboard() {
                               <td style={{ padding: '0.75rem 0.5rem', color: '#334155', whiteSpace: 'nowrap' }}>{w.name}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#475569', whiteSpace: 'nowrap' }}>{w.mobile}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#475569', whiteSpace: 'nowrap' }}>{w.school}</td>
+                              <td style={{ padding: '0.75rem 0.5rem', color: '#475569', whiteSpace: 'nowrap' }}>{w.block}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#475569', whiteSpace: 'nowrap' }}>{w.district}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#3b82f6', whiteSpace: 'nowrap' }}>{w.title}</td>
+                              <td style={{ padding: '0.75rem 0.5rem', color: '#64748b', maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={w.content}>{w.content}</td>
                               <td style={{ padding: '0.75rem 0.5rem', whiteSpace: 'nowrap' }}>
                                 <span style={{ backgroundColor: w.catBg, color: w.catColor, fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{w.category}</span>
                               </td>
