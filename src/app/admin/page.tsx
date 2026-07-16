@@ -8,7 +8,7 @@ import {
 import { 
   Home, Edit3, FileText, MessageSquare, AlertTriangle, CheckCircle, 
   BarChart2, Download, Bell, User, HelpCircle, LogOut, 
-  FileBox, Clock, AlertCircle, Eye, ShieldCheck, Timer, EyeIcon, Star, X
+  FileBox, Clock, AlertCircle, Eye, ShieldCheck, Timer, EyeIcon, Star, X, RefreshCw
 } from 'lucide-react';
 import Link from 'next/link';
 import Papa from 'papaparse';
@@ -27,6 +27,9 @@ export default function AdminDashboard() {
   const [uploadingCSV, setUploadingCSV] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
   const [tableZoom, setTableZoom] = useState(1);
+  const [showSyncModal, setShowSyncModal] = useState(false);
+  const [syncUrl, setSyncUrl] = useState('');
+  const [isSyncing, setIsSyncing] = useState(false);
 
   const fetchDashboardData = () => {
     fetch('/api/dashboard')
@@ -40,6 +43,12 @@ export default function AdminDashboard() {
         setLoading(false);
       });
   };
+
+  useEffect(() => {
+    fetchDashboardData();
+    const savedUrl = localStorage.getItem('googleSheetSyncUrl');
+    if (savedUrl) setSyncUrl(savedUrl);
+  }, []);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -106,9 +115,33 @@ export default function AdminDashboard() {
     }
   };
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
+  const handleSync = async () => {
+    if (!syncUrl) {
+      alert("कृपया पहले Google Sheet का CSV लिंक डालें।");
+      return;
+    }
+    
+    setIsSyncing(true);
+    try {
+      localStorage.setItem('googleSheetSyncUrl', syncUrl);
+      const res = await fetch('/api/writeups/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ url: syncUrl })
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(`सिंक सफल रहा! कुल ${data.totalFound} रिकॉर्ड्स में से ${data.count} नए रिकॉर्ड जोड़े गए।`);
+        fetchDashboardData();
+        setShowSyncModal(false);
+      } else {
+        alert(`सिंक विफल: ${data.error}`);
+      }
+    } catch (err) {
+      alert("सिंक करने में त्रुटि हुई।");
+    }
+    setIsSyncing(false);
+  };
 
   const pieData = data?.stats ? [
     { name: 'लंबित समीक्षा', value: data.stats.pending || 0, color: '#3b82f6' },
@@ -234,6 +267,52 @@ export default function AdminDashboard() {
         </div>
       )}
 
+      {/* SYNC MODAL */}
+      {showSyncModal && (
+        <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '2rem' }}>
+          <div style={{ backgroundColor: 'white', borderRadius: '8px', width: '100%', maxWidth: '600px', padding: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#1e293b' }}>Google Sheet से सिंक करें</h3>
+              <button onClick={() => setShowSyncModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}>
+                <X size={20} />
+              </button>
+            </div>
+            
+            <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+              अपने Google फॉर्म के रिस्पॉन्स शीट को <b>File &gt; Share &gt; Publish to web</b> पर जाकर <b>CSV</b> फॉर्मेट में पब्लिश करें और लिंक यहाँ डालें। सिस्टम सिर्फ नए रिकॉर्ड्स ही सेव करेगा (डुप्लीकेट नहीं)।
+            </p>
+
+            <div style={{ marginBottom: '1.5rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#334155', fontWeight: '500' }}>CSV Publish Link</label>
+              <input 
+                type="text" 
+                value={syncUrl}
+                onChange={(e) => setSyncUrl(e.target.value)}
+                placeholder="https://docs.google.com/spreadsheets/d/e/2PACX-1v.../pub?output=csv"
+                style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
+              />
+            </div>
+
+            <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+              <button 
+                onClick={() => setShowSyncModal(false)}
+                style={{ padding: '0.5rem 1.5rem', border: '1px solid #cbd5e1', backgroundColor: 'white', borderRadius: '4px', cursor: 'pointer' }}
+              >
+                रद्द करें
+              </button>
+              <button 
+                onClick={handleSync}
+                disabled={isSyncing}
+                style={{ padding: '0.5rem 1.5rem', border: 'none', backgroundColor: '#3b82f6', color: 'white', borderRadius: '4px', cursor: isSyncing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+              >
+                {isSyncing && <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} />}
+                {isSyncing ? 'सिंक हो रहा है...' : 'सिंक शुरू करें'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
         {/* SIDEBAR */}
         <div style={{ width: '250px', backgroundColor: '#10468c', color: 'white', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
@@ -284,7 +363,28 @@ export default function AdminDashboard() {
             <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
               
               {/* CSV Upload Button */}
-              <div style={{ marginRight: '1rem' }}>
+              <div style={{ marginRight: '1rem', display: 'flex', gap: '0.5rem' }}>
+                <button 
+                  onClick={() => setShowSyncModal(true)}
+                  disabled={isSyncing}
+                  style={{ 
+                    display: 'inline-flex', 
+                    alignItems: 'center', 
+                    gap: '0.5rem', 
+                    backgroundColor: '#3b82f6', 
+                    color: 'white', 
+                    padding: '0.5rem 1rem', 
+                    borderRadius: '4px', 
+                    border: 'none',
+                    cursor: isSyncing ? 'not-allowed' : 'pointer',
+                    fontSize: '0.9rem',
+                    fontWeight: '500',
+                    opacity: isSyncing ? 0.7 : 1
+                  }}
+                >
+                  <RefreshCw size={16} style={{ animation: isSyncing ? 'spin 1s linear infinite' : 'none' }} />
+                  Google Form सिंक
+                </button>
                 <input 
                   type="file" 
                   accept=".csv" 
@@ -311,7 +411,7 @@ export default function AdminDashboard() {
                   }}
                 >
                   <FileBox size={18} />
-                  {uploadingCSV ? 'अपलोड हो रहा है...' : 'Upload Google Form CSV'}
+                  {uploadingCSV ? 'अपलोड हो रहा है...' : 'Upload CSV'}
                 </label>
               </div>
 
@@ -489,16 +589,10 @@ export default function AdminDashboard() {
                           })
                           .filter((w: any) => {
                             if (!selectedDistrict) return true;
-                            // Basic match logic: 
                             const dbDist = (w.district || "").toLowerCase().trim();
                             const selDist = selectedDistrict.toLowerCase().trim();
-                            // If they match directly
                             if (dbDist === selDist) return true;
                             
-                            // Map Hindi to English just in case using a mini map here, 
-                            // but usually since we passed the normalized English name from map, 
-                            // we just need to see if the DB district maps to this English name.
-                            // However, we don't have the dictionary here, so we do simple substring matching as fallback:
                             const districtMapVal: Record<string, string> = { "आगरा": "agra", "अलीगढ़": "aligarh", "प्रयागराज": "prayagraj", "इलाहाबाद": "prayagraj", "अंबेडकर नगर": "ambedkar nagar", "अमेठी": "amethi", "अमरोहा": "amroha", "औरैया": "auraiya", "अयोध्या": "ayodhya", "फैजाबाद": "ayodhya", "आजमगढ़": "azamgarh", "बागपत": "baghpat", "बहराइच": "bahraich", "बलिया": "ballia", "बलरामपुर": "balrampur", "बांदा": "banda", "बाराबंकी": "barabanki", "बरेली": "bareilly", "बस्ती": "basti", "भदोही": "bhadohi", "बिजनौर": "bijnor", "बदायूं": "budaun", "बुलंदशहर": "bulandshahr", "चंदौली": "chandauli", "चित्रकूट": "chitrakoot", "देवरिया": "deoria", "एटा": "etah", "इटावा": "etawah", "फर्रुखाबाद": "farrukhabad", "फतेहपुर": "fatehpur", "फिरोजाबाद": "firozabad", "गौतम बुद्ध नगर": "gautam buddha nagar", "गाजियाबाद": "ghaziabad", "गाजीपुर": "ghazipur", "गोंडा": "gonda", "गोरखपुर": "gorakhpur", "हमीरपुर": "hamirpur", "हापुड़": "hapur", "हरदोई": "hardoi", "हाथरस": "hathras", "जालौन": "jalaun", "जौनपुर": "jaunpur", "झांसी": "jhansi", "कन्नौज": "kannauj", "कानपुर देहात": "kanpur dehat", "कानपुर नगर": "kanpur nagar", "कासगंज": "kasganj", "कौशांबी": "kaushambi", "खीरी": "kheri", "लखीमपुर खीरी": "kheri", "कुशीनगर": "kushinagar", "ललितपुर": "lalitpur", "लखनऊ": "lucknow", "महाराजगंज": "maharajganj", "महोबा": "mahoba", "मैनपुरी": "mainpuri", "मथुरा": "mathura", "मऊ": "mau", "मेरठ": "meerut", "मिर्जापुर": "mirzapur", "मुरादाबाद": "moradabad", "मुजफ्फरनगर": "muzaffarnagar", "पीलीभीत": "pilibhit", "प्रतापगढ़": "pratapgarh", "रायबरेली": "raebareli", "रामपुर": "rampur", "सहारनपुर": "saharanpur", "संभल": "sambhal", "संत कबीर नगर": "sant kabir nagar", "शाहजहांपुर": "shahjahanpur", "शामली": "shamli", "श्रावस्ती": "shravasti", "सिद्धार्थनगर": "siddharthnagar", "सीतापुर": "sitapur", "सोनभद्र": "sonbhadra", "सुल्तानपुर": "sultanpur", "उन्नाव": "unnao", "वाराणसी": "varanasi" };
                             
                             if (districtMapVal[dbDist] === selDist) return true;
@@ -548,6 +642,53 @@ export default function AdminDashboard() {
                 </div>
             </>
             )}
+
+            {/* SYNC MODAL */}
+            {showSyncModal && (
+              <div style={{ position: 'fixed', top: 0, left: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.5)', display: 'flex', justifyContent: 'center', alignItems: 'center', zIndex: 1000, padding: '2rem' }}>
+                <div style={{ backgroundColor: 'white', borderRadius: '8px', width: '100%', maxWidth: '600px', padding: '1.5rem', boxShadow: '0 25px 50px -12px rgba(0,0,0,0.25)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h3 style={{ margin: 0, fontSize: '1.2rem', color: '#1e293b' }}>Google Sheet से सिंक करें</h3>
+                    <button onClick={() => setShowSyncModal(false)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94a3b8' }}>
+                      <X size={20} />
+                    </button>
+                  </div>
+                  
+                  <p style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: '1.5rem', lineHeight: 1.5 }}>
+                    अपने Google फॉर्म के रिस्पॉन्स शीट को <b>File &gt; Share &gt; Publish to web</b> पर जाकर <b>CSV</b> फॉर्मेट में पब्लिश करें और लिंक यहाँ डालें। सिस्टम सिर्फ नए रिकॉर्ड्स ही सेव करेगा (डुप्लीकेट नहीं)।
+                  </p>
+
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#334155', fontWeight: '500' }}>CSV Publish Link</label>
+                    <input 
+                      type="text" 
+                      value={syncUrl}
+                      onChange={(e) => setSyncUrl(e.target.value)}
+                      placeholder="https://docs.google.com/spreadsheets/d/e/2PACX-1v.../pub?output=csv"
+                      style={{ width: '100%', padding: '0.75rem', borderRadius: '4px', border: '1px solid #cbd5e1', fontSize: '0.9rem' }}
+                    />
+                  </div>
+
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
+                    <button 
+                      onClick={() => setShowSyncModal(false)}
+                      style={{ padding: '0.5rem 1.5rem', border: '1px solid #cbd5e1', backgroundColor: 'white', borderRadius: '4px', cursor: 'pointer' }}
+                    >
+                      रद्द करें
+                    </button>
+                    <button 
+                      onClick={handleSync}
+                      disabled={isSyncing}
+                      style={{ padding: '0.5rem 1.5rem', border: 'none', backgroundColor: '#3b82f6', color: 'white', borderRadius: '4px', cursor: isSyncing ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                    >
+                      {isSyncing && <RefreshCw size={14} style={{ animation: 'spin 1s linear infinite' }} />}
+                      {isSyncing ? 'सिंक हो रहा है...' : 'सिंक शुरू करें'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
           </div>
         </div>
       </div>
