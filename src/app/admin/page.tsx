@@ -26,6 +26,7 @@ export default function AdminDashboard() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [uploadingCSV, setUploadingCSV] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [tableZoom, setTableZoom] = useState(1);
   const [showSyncModal, setShowSyncModal] = useState(false);
   const [syncUrl, setSyncUrl] = useState('');

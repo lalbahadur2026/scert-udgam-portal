@@ -26,7 +26,7 @@ export async function GET() {
 
     // Get all writeups for the Excel-like table
     const recentWriteups = await prisma.writeup.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: { createdAt: 'asc' },
       include: { teacher: true }
     });
 
