@@ -49,7 +49,8 @@ export async function POST(req: Request) {
       const mobileRaw = row['मोबाइलनंबर'] || row['मोबाइलनंबर(mobilenumber)'] || row['mobile'] || row['mobilenumber'] || '';
       const mobile = mobileRaw ? String(mobileRaw) : '';
       const teacherName = row['शिक्षककानाम'] || row['पूरानाम'] || row['पूरानाम(fullname)'] || row['teachername'] || row['name'] || '';
-      const fileUrl = row['डॉक्यूमेंटअपलोडकरें'] || row['डॉक्यूमेंटअपलोडकरें(.docx,.pdf)'] || null;
+      const fileKey = Object.keys(row).find(k => k.includes('डॉक्यूमेंट') || k.includes('upload') || k.includes('file') || k.includes('link') || k.includes('pdf'));
+      const fileUrl = fileKey ? row[fileKey] : null;
 
       return {
         title,

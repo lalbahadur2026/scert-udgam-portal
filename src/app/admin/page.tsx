@@ -466,15 +466,13 @@ export default function AdminDashboard() {
                       <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                         <tr style={{ textAlign: 'left', color: '#64748b' }}>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>क्रम संख्या</th>
-                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>शिक्षक का नाम</th>
-                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>मोबाइल नंबर</th>
-                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>विद्यालय</th>
-                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>ब्लॉक</th>
-                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>जिला</th>
-                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>नवाचार का शीर्षक</th>
-                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>विस्तृत विवरण</th>
-                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>श्रेणी</th>
-                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>दस्तावेज़</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>पूरा नाम (Full Name)</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>मोबाइल नंबर (Mobile Number)</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>विद्यालय का नाम (School Name)</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>जनपद (District)</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>इनोवेशन का शीर्षक (Innovation Title)</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>विस्तृत राइट-अप (Detailed Write-up)</th>
+                          <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>डॉक्यूमेंट अपलोड करें (.docx, .pdf)</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>स्थिति</th>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>कार्यवाही</th>
                         </tr>
@@ -514,13 +512,9 @@ export default function AdminDashboard() {
                               <td style={{ padding: '0.75rem 0.5rem', color: '#334155', whiteSpace: 'nowrap' }}>{w.name}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#475569', whiteSpace: 'nowrap' }}>{w.mobile}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#475569', whiteSpace: 'nowrap' }}>{w.school}</td>
-                              <td style={{ padding: '0.75rem 0.5rem', color: '#475569', whiteSpace: 'nowrap' }}>{w.block}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#475569', whiteSpace: 'nowrap' }}>{w.district}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#3b82f6', whiteSpace: 'nowrap' }}>{w.title}</td>
                               <td style={{ padding: '0.75rem 0.5rem', color: '#64748b', maxWidth: '300px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }} title={w.content}>{w.content}</td>
-                              <td style={{ padding: '0.75rem 0.5rem', whiteSpace: 'nowrap' }}>
-                                <span style={{ backgroundColor: w.catBg, color: w.catColor, fontSize: '0.75rem', padding: '0.2rem 0.5rem', borderRadius: '4px' }}>{w.category}</span>
-                              </td>
                               <td style={{ padding: '0.75rem 0.5rem' }}>
                                 {w.fileUrl ? (
                                   <a href={w.fileUrl} target="_blank" rel="noopener noreferrer" style={{ color: '#10b981', display: 'flex', alignItems: 'center', gap: '0.25rem', textDecoration: 'none', fontWeight: '500' }}>
