@@ -25,6 +25,7 @@ export default function AdminDashboard() {
   const [reviewerComment, setReviewerComment] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const [uploadingCSV, setUploadingCSV] = useState(false);
+  const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
 
   const fetchDashboardData = () => {
     fetch('/api/dashboard')
@@ -396,7 +397,13 @@ export default function AdminDashboard() {
                       </div>
                       <div style={{ height: '300px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
                         {data?.districtStats && data.districtStats.length > 0 ? (
-                          <UPMap districtStats={data.districtStats} />
+                          <UPMap 
+                            districtStats={data.districtStats} 
+                            onDistrictClick={(dist) => {
+                              setSelectedDistrict(prev => prev === dist ? null : dist);
+                              setActiveTab('डैशबोर्ड'); // switch back to dashboard tab to see list
+                            }} 
+                          />
                         ) : (
                           <div style={{ color: '#94a3b8', fontSize: '0.9rem' }}>कोई डेटा उपलब्ध नहीं</div>
                         )}
@@ -420,9 +427,21 @@ export default function AdminDashboard() {
 
               {/* BOTTOM TABLE */}
               <div className="card" style={{ padding: '1rem', backgroundColor: 'white', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
-                  <h3 style={{ margin: '0 0 1rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e293b', fontSize: '1rem' }}>
-                    <FileText size={16} /> {activeTab === 'डैशबोर्ड' ? 'हाल ही में प्राप्त लेखन' : 'लेखन सूची'}
-                  </h3>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h3 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem', color: '#1e293b', fontSize: '1rem' }}>
+                      <FileText size={16} /> 
+                      {activeTab === 'डैशबोर्ड' ? 'हाल ही में प्राप्त लेखन' : 'लेखन सूची'}
+                      {selectedDistrict && <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}> ({selectedDistrict} जिले का डेटा)</span>}
+                    </h3>
+                    {selectedDistrict && (
+                      <button 
+                        onClick={() => setSelectedDistrict(null)}
+                        style={{ padding: '0.4rem 0.8rem', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                      >
+                        <X size={12} /> फ़िल्टर हटाएं
+                      </button>
+                    )}
+                  </div>
                   <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '500px', border: '1px solid #e2e8f0', borderRadius: '4px' }}>
                     <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                       <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
@@ -447,6 +466,25 @@ export default function AdminDashboard() {
                             if (activeTab === 'इंटरव्यू चयनित') return w.rawStatus === 'INTERVIEW_SELECTED';
                             if (activeTab === 'इंटरव्यू अस्वीकृत') return w.rawStatus === 'INTERVIEW_REJECTED';
                             return true;
+                          })
+                          .filter((w: any) => {
+                            if (!selectedDistrict) return true;
+                            // Basic match logic: 
+                            const dbDist = (w.district || "").toLowerCase().trim();
+                            const selDist = selectedDistrict.toLowerCase().trim();
+                            // If they match directly
+                            if (dbDist === selDist) return true;
+                            
+                            // Map Hindi to English just in case using a mini map here, 
+                            // but usually since we passed the normalized English name from map, 
+                            // we just need to see if the DB district maps to this English name.
+                            // However, we don't have the dictionary here, so we do simple substring matching as fallback:
+                            const districtMapVal: Record<string, string> = { "आगरा": "agra", "अलीगढ़": "aligarh", "प्रयागराज": "prayagraj", "इलाहाबाद": "prayagraj", "अंबेडकर नगर": "ambedkar nagar", "अमेठी": "amethi", "अमरोहा": "amroha", "औरैया": "auraiya", "अयोध्या": "ayodhya", "फैजाबाद": "ayodhya", "आजमगढ़": "azamgarh", "बागपत": "baghpat", "बहराइच": "bahraich", "बलिया": "ballia", "बलरामपुर": "balrampur", "बांदा": "banda", "बाराबंकी": "barabanki", "बरेली": "bareilly", "बस्ती": "basti", "भदोही": "bhadohi", "बिजनौर": "bijnor", "बदायूं": "budaun", "बुलंदशहर": "bulandshahr", "चंदौली": "chandauli", "चित्रकूट": "chitrakoot", "देवरिया": "deoria", "एटा": "etah", "इटावा": "etawah", "फर्रुखाबाद": "farrukhabad", "फतेहपुर": "fatehpur", "फिरोजाबाद": "firozabad", "गौतम बुद्ध नगर": "gautam buddha nagar", "गाजियाबाद": "ghaziabad", "गाजीपुर": "ghazipur", "गोंडा": "gonda", "गोरखपुर": "gorakhpur", "हमीरपुर": "hamirpur", "हापुड़": "hapur", "हरदोई": "hardoi", "हाथरस": "hathras", "जालौन": "jalaun", "जौनपुर": "jaunpur", "झांसी": "jhansi", "कन्नौज": "kannauj", "कानपुर देहात": "kanpur dehat", "कानपुर नगर": "kanpur nagar", "कासगंज": "kasganj", "कौशांबी": "kaushambi", "खीरी": "kheri", "लखीमपुर खीरी": "kheri", "कुशीनगर": "kushinagar", "ललितपुर": "lalitpur", "लखनऊ": "lucknow", "महाराजगंज": "maharajganj", "महोबा": "mahoba", "मैनपुरी": "mainpuri", "मथुरा": "mathura", "मऊ": "mau", "मेरठ": "meerut", "मिर्जापुर": "mirzapur", "मुरादाबाद": "moradabad", "मुजफ्फरनगर": "muzaffarnagar", "पीलीभीत": "pilibhit", "प्रतापगढ़": "pratapgarh", "रायबरेली": "raebareli", "रामपुर": "rampur", "सहारनपुर": "saharanpur", "संभल": "sambhal", "संत कबीर नगर": "sant kabir nagar", "शाहजहांपुर": "shahjahanpur", "शामली": "shamli", "श्रावस्ती": "shravasti", "सिद्धार्थनगर": "siddharthnagar", "सीतापुर": "sitapur", "सोनभद्र": "sonbhadra", "सुल्तानपुर": "sultanpur", "उन्नाव": "unnao", "वाराणसी": "varanasi" };
+                            
+                            if (districtMapVal[dbDist] === selDist) return true;
+                            if (districtMapVal[selDist] === dbDist) return true;
+                            
+                            return dbDist.includes(selDist) || selDist.includes(dbDist);
                           })
                           .map((w: any, idx: number) => (
                           <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>

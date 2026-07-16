@@ -105,7 +105,7 @@ const normalizeDistrictName = (name: string) => {
   return districtMap[trimmed] || trimmed;
 };
 
-export default function DynamicUPMap({ districtStats }: { districtStats: { name: string, value: number }[] }) {
+export default function DynamicUPMap({ districtStats, onDistrictClick }: { districtStats: { name: string, value: number }[], onDistrictClick?: (district: string) => void }) {
   const [geoData, setGeoData] = useState<any>(null);
 
   useEffect(() => {
@@ -183,6 +183,12 @@ export default function DynamicUPMap({ districtStats }: { districtStats: { name:
           color: '#94a3b8',
           fillOpacity: val > 0 ? 0.7 : 0.4
         });
+      },
+      click: () => {
+        if (onDistrictClick) {
+          // Pass the English normalized name so we can filter robustly
+          onDistrictClick(normalizedDName);
+        }
       }
     });
   };
