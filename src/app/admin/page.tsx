@@ -26,6 +26,7 @@ export default function AdminDashboard() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [uploadingCSV, setUploadingCSV] = useState(false);
   const [selectedDistrict, setSelectedDistrict] = useState<string | null>(null);
+  const [tableZoom, setTableZoom] = useState(1);
 
   const fetchDashboardData = () => {
     fetch('/api/dashboard')
@@ -434,17 +435,34 @@ export default function AdminDashboard() {
                       {activeTab === 'डैशबोर्ड' ? 'हाल ही में प्राप्त लेखन' : 'लेखन सूची'}
                       {selectedDistrict && <span style={{ color: '#3b82f6', fontSize: '0.9rem' }}> ({selectedDistrict} जिले का डेटा)</span>}
                     </h3>
-                    {selectedDistrict && (
-                      <button 
-                        onClick={() => setSelectedDistrict(null)}
-                        style={{ padding: '0.4rem 0.8rem', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
-                      >
-                        <X size={12} /> फ़िल्टर हटाएं
-                      </button>
-                    )}
+                    <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', backgroundColor: '#f1f5f9', borderRadius: '4px', border: '1px solid #cbd5e1', overflow: 'hidden' }}>
+                        <button 
+                          onClick={() => setTableZoom(prev => Math.max(0.5, prev - 0.1))}
+                          style={{ padding: '0.3rem 0.5rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 'bold' }}
+                          title="Zoom Out"
+                        >-</button>
+                        <span style={{ fontSize: '0.75rem', padding: '0 0.5rem', userSelect: 'none' }}>{Math.round(tableZoom * 100)}%</span>
+                        <button 
+                          onClick={() => setTableZoom(prev => Math.min(1.5, prev + 0.1))}
+                          style={{ padding: '0.3rem 0.5rem', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', fontSize: '0.9rem', fontWeight: 'bold' }}
+                          title="Zoom In"
+                        >+</button>
+                      </div>
+                      
+                      {selectedDistrict && (
+                        <button 
+                          onClick={() => setSelectedDistrict(null)}
+                          style={{ padding: '0.4rem 0.8rem', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', fontSize: '0.75rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.3rem' }}
+                        >
+                          <X size={12} /> फ़िल्टर हटाएं
+                        </button>
+                      )}
+                    </div>
                   </div>
                   <div style={{ overflowX: 'auto', overflowY: 'auto', maxHeight: '500px', border: '1px solid #e2e8f0', borderRadius: '4px' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                    <div style={{ zoom: tableZoom }}>
+                      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
                       <thead style={{ position: 'sticky', top: 0, backgroundColor: 'white', zIndex: 10, boxShadow: '0 2px 4px rgba(0,0,0,0.05)' }}>
                         <tr style={{ textAlign: 'left', color: '#64748b' }}>
                           <th style={{ padding: '0.75rem 0.5rem', fontWeight: '500', borderBottom: '2px solid #e2e8f0', whiteSpace: 'nowrap' }}>क्रम संख्या</th>
@@ -531,6 +549,7 @@ export default function AdminDashboard() {
                         )}
                       </tbody>
                     </table>
+                    </div>
                   </div>
                 </div>
             </>
