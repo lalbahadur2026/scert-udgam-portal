@@ -14,6 +14,10 @@ export async function POST(req: Request) {
     if (!url || !url.startsWith('http')) {
       return NextResponse.json({ error: 'Invalid URL provided' }, { status: 400 });
     }
+    
+    if (!url.toLowerCase().includes('csv')) {
+      return NextResponse.json({ error: 'आपने गलत लिंक डाला है। कृपया ध्यान दें कि लिंक के अंत में "csv" होना चाहिए (Publish as CSV)। आपने वेबपेज का लिंक डाल दिया है।' }, { status: 400 });
+    }
 
     const response = await fetch(url);
     if (!response.ok) {
