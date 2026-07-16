@@ -50,6 +50,7 @@ export async function GET() {
         name: w.authorName || w.teacher.name,
         school: w.school || 'N/A',
         district: w.district || 'N/A',
+        mobile: w.mobile || 'N/A',
         title: w.title,
         category: w.category || 'नवाचार',
         content: w.content,
